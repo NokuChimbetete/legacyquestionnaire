@@ -12,13 +12,18 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Smooth transitions for all elements */
-*,
-*::before,
-*::after {
-  transition-property: opacity, transform, background-color, border-color, color, fill, stroke;
+/* Smooth transitions for non-animated elements only */
+*:not([data-framer-motion]),
+*:not([data-framer-motion])::before,
+*:not([data-framer-motion])::after {
+  transition-property: background-color, border-color, color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+
+/* Prevent default transitions on Framer Motion elements */
+[data-framer-motion] {
+  transition: none !important;
 }
 
 /* Custom scrollbar styling for webkit browsers */
@@ -48,4 +53,46 @@ html {
 /* Smooth page transitions */
 body {
   overflow-x: hidden;
+}
+
+/* Hardware acceleration for smooth animations */
+.motion-element {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Specific optimizations for Framer Motion */
+[data-framer-motion] {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Remove body scroll during page transitions */
+body.page-transitioning {
+  overflow: hidden;
+}
+
+/* Reduce motion for users with accessibility preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  [data-framer-motion] {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* GPU acceleration for 3D transforms */
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
 }

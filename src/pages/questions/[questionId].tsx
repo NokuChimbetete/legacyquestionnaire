@@ -281,11 +281,11 @@ const QuestionPage: React.FC = () => {
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-6 pt-32">
         <motion.div
           key={currentQuestion}
-          className="w-full max-w-2xl"
+          className="w-full max-w-2xl motion-element"
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -30, scale: 0.95 }}
-          transition={{ duration: 0.1, ease: "easeOut" }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
           <motion.div 
             className="relative rounded-2xl bg-white p-8 shadow-xl border border-gray-100 backdrop-blur-sm"
@@ -334,7 +334,7 @@ const QuestionPage: React.FC = () => {
                       scale: 1.02,
                       borderColor: selectedOption === getGroupValue(question, opt) ? "#3b82f6" : "#9ca3af",
                       boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                      transition: { duration: 0.05 }
+                      transition: { duration: 0.2 }
                     }}
                     whileTap={{ scale: 0.98 }}
                   >

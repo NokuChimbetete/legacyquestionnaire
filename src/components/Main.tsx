@@ -2,13 +2,13 @@ import React from "react";
 import Image from "next/image";
 import LoginForm from "./LoginForm";
 import { motion } from "framer-motion";
+import { motionVariants } from "../utils/animationUtils";
 
 const MainSection: React.FC = () => {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-white via-gray-50 to-white p-6">      <motion.div
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col lg:flex-row items-center gap-12 w-full max-w-6xl"
+        {...motionVariants.fadeIn}
+        className="flex flex-col lg:flex-row items-center gap-12 w-full max-w-6xl motion-element"
       >
         <motion.div
           animate={{ opacity: 1, x: 0 }}

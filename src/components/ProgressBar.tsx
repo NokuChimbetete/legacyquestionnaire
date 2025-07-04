@@ -11,10 +11,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ current, total }) => {
   
   return (
     <motion.div 
-      className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100 p-4"
+      className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100 p-4 motion-element"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-2">
@@ -32,6 +32,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ current, total }) => {
             initial={{ width: 0 }}
             animate={{ width: `${percent}%` }}
             transition={{ duration: 0.8, ease: "easeOut" }}
+            style={{ willChange: "width" }}
           />
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
@@ -41,9 +42,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ current, total }) => {
             transition={{ 
               duration: 2,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
+              repeatType: "loop"
             }}
-            style={{ width: '30%' }}
+            style={{ width: '30%', willChange: "transform" }}
           />
         </div>
         

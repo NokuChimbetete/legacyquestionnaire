@@ -4,7 +4,15 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 // Security configuration
-export const securityConfig = {  // Allowed origins for CORS
+export const securityConfig = {
+  // Allowed origins for CORS
+  allowedOrigins: [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://legacyquestionnaire-minerva.firebaseapp.com',
+    'https://legacyquestionnaire-minerva.web.app',
+    ...(process.env.NODE_ENV === 'development' ? ['http://localhost:3001', 'http://127.0.0.1:3001'] : [])
+  ],
   
   // Rate limiting configuration
   rateLimits: {

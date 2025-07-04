@@ -59,9 +59,12 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       
       <AnimatePresence 
         mode="wait" 
+        initial={false}
         onExitComplete={() => {
           // Smooth scroll to top on page change
           window.scrollTo({ top: 0, behavior: 'smooth' });
+          // Remove transitioning class
+          document.body.classList.remove('page-transitioning');
         }}
       >
         <motion.div
@@ -70,7 +73,11 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           initial="initial"
           animate="enter"
           exit="exit"
-          className="min-h-screen"
+          className="min-h-screen motion-element"
+          onAnimationStart={() => {
+            // Add transitioning class to prevent conflicts
+            document.body.classList.add('page-transitioning');
+          }}
         >
           <Component {...pageProps} />
         </motion.div>
