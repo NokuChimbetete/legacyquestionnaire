@@ -1,5 +1,15 @@
 import { useEffect } from 'react';
-import { Variants } from 'framer-motion';
+
+/**
+ * Animation variant type for framer-motion
+ */
+interface AnimationVariant {
+  [key: string]: unknown;
+  transition?: {
+    [key: string]: unknown;
+    delay?: number;
+  };
+}
 
 /**
  * Centralized animation variants for consistent animations across the app
@@ -126,7 +136,7 @@ export const transitions = {
 /**
  * Hook to optimize animations and prevent conflicts
  */
-export const useAnimationOptimization = (isAnimating: boolean = false) => {
+export const useAnimationOptimization = (isAnimating = false) => {
   useEffect(() => {
     if (isAnimating) {
       // Prevent layout thrashing during animations
@@ -154,7 +164,7 @@ export const optimizedStyles = {
 /**
  * Helper function to create delayed variants
  */
-export const withDelay = (variant: any, delay: number) => ({
+export const withDelay = (variant: AnimationVariant, delay: number): AnimationVariant => ({
   ...variant,
   transition: {
     ...variant.transition,

@@ -319,7 +319,7 @@ const QuestionPage: React.FC = () => {
                   initial="initial"
                   animate="animate"
                 >
-                  {["A","B","C","D","E"].map((opt, index) => (
+                  {["A","B","C","D","E"].map((opt, _index) => (
                     <motion.label
                       key={opt}
                       className={`group relative block cursor-pointer rounded-xl border-2 p-6 ${

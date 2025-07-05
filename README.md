@@ -1,17 +1,26 @@
 # Minerva Legacy Questionnaire
 
-A secure, modern web application for conducting personality assessments specifically designed for Minerva University students. This application presents users with a series of questions across different ILO (Integrated Learning Outcomes) categories and provides personalized identity assessments based on their responses.
+A secure, modern web application for conducting personality assessments specifically designed for Minerva University students. This application presents users with a series of questions across different ILO (Integrated Learning Outcomes) categories, includes an interactive sorting feature for legacy preferences, and provides personalized identity assessments based on their responses.
 
 ## ✨ Key Features
 
 - **🔐 Secure Authentication**: Multi-factor authentication with Firebase Auth and Google OAuth
 - **🎨 Modern UI/UX**: Beautiful, responsive design with smooth animations and glassmorphism effects
 - **📊 Dynamic Questionnaire**: CSV-driven question system with progress tracking
-- **🛡️ Enterprise Security**: Comprehensive security measures including rate limiting, input sanitization, and CSRF protection
+- **� Interactive Sorting**: Drag-and-drop legacy preference ranking with group-based sorting
+- **�🛡️ Enterprise Security**: Comprehensive security measures including rate limiting, input sanitization, and CSRF protection
 - **📱 Mobile-First**: Fully responsive design optimized for all devices
 - **⚡ Performance Optimized**: Fast loading with Next.js optimizations and efficient state management
+- **🎯 Personalized Results**: AI-driven personality assessment with detailed legacy matching
 
 ## 🆕 Recent Updates & Enhancements
+
+### 🎮 New Interactive Sorting Feature (January 2025)
+- **Drag-and-Drop Interface**: Implemented @dnd-kit for smooth, accessible drag-and-drop sorting functionality
+- **Legacy Preference Ranking**: Students can now rank legacy preferences in order of importance through interactive sorting
+- **Group-Based Organization**: Legacies are organized into manageable groups for better user experience
+- **Progress Tracking**: Multi-step sorting process with clear progress indicators
+- **Accessibility Compliance**: Full keyboard navigation and screen reader support
 
 ### 🔐 Enhanced Security Features
 - **Advanced Rate Limiting**: Implemented progressive rate limiting with different thresholds for authentication attempts
@@ -42,11 +51,13 @@ A secure, modern web application for conducting personality assessments specific
 - **Database**: Firebase Firestore with real-time updates
 - **Styling**: Tailwind CSS with PostCSS and responsive utilities
 - **Animations**: Framer Motion for fluid transitions and micro-interactions
+- **Drag & Drop**: @dnd-kit for accessible drag-and-drop functionality
 - **Security**: Custom middleware, DOMPurify, Validator.js, rate limiting
 - **Form Components**: Radix UI Select, React Select with accessibility
 - **Data Processing**: PapaParse for CSV handling and validation
 - **Development**: ESLint, Prettier, TypeScript with strict mode
 - **Environment**: T3 Env for type-safe environment variables
+- **UI Enhancements**: React Confetti for celebration animations
 
 ## 📋 Prerequisites
 
@@ -111,6 +122,7 @@ npm start
 ```
 ├── public/
 │   ├── legacy_questions.csv    # Survey questions data
+│   ├── legacies.csv           # Legacy information and descriptions
 │   ├── minerva.svg            # Minerva logos and branding
 │   ├── minerva1.svg
 │   ├── Visual.svg
@@ -121,12 +133,13 @@ npm start
 │   │   ├── Main.tsx           # Landing page component with responsive design
 │   │   ├── ProgressBar.tsx    # Animated survey progress indicator
 │   │   ├── DropdownComponent.tsx # Accessible form select components
+│   │   ├── SortableItem.tsx   # Drag-and-drop sortable item component
 │   │   └── PageTransition.tsx  # Smooth animated page transitions
 │   ├── pages/
 │   │   ├── _app.tsx           # Next.js app configuration with global providers
 │   │   ├── index.tsx          # Home page with modern UI
+│   │   ├── sorting.tsx        # Interactive legacy sorting page
 │   │   ├── Final.tsx          # Interactive results page with analytics
-│   │   ├── env-test.tsx       # Environment validation testing page
 │   │   ├── api/
 │   │   │   └── validate.ts    # Server-side validation API with security middleware
 │   │   └── questions/
@@ -135,7 +148,9 @@ npm start
 │   │   └── security.ts        # Advanced API security middleware with rate limiting
 │   ├── utils/
 │   │   ├── config.ts          # Environment & security configuration with validation
-│   │   └── security.ts        # Comprehensive input validation & security utilities
+│   │   ├── security.ts        # Comprehensive input validation & security utilities
+│   │   ├── animationUtils.ts  # Framer Motion animation configurations
+│   │   └── legacies.ts        # Legacy data processing and utilities
 │   └── styles/
 │       └── globals.css        # Global Tailwind styles
 ├── firebase.ts                # Firebase configuration & initialization
@@ -157,6 +172,29 @@ The survey consists of questions organized into five ILO categories:
 
 Each question offers 5 multiple-choice options, each aligned with one of the five identity categories (e.g., Civic, Legion, Liberty, North, Tower).
 
+## 🏛️ Legacy Sorting System
+
+The application features an innovative legacy preference ranking system:
+
+### 🎯 Interactive Sorting Features
+- **Drag-and-Drop Interface**: Intuitive drag-and-drop functionality using @dnd-kit for smooth interactions
+- **Group-Based Organization**: Legacies are organized into manageable groups to reduce cognitive load
+- **Multi-Step Process**: Progressive sorting through different legacy groups with clear navigation
+- **Real-Time Feedback**: Visual feedback during dragging with smooth animations and hover effects
+- **Accessibility First**: Full keyboard navigation support and screen reader compatibility
+
+### 📊 Legacy Data Structure
+- **CSV-Driven Content**: Legacy information loaded from `legacies.csv` for easy content management
+- **Rich Descriptions**: Each legacy includes detailed descriptions and characteristics
+- **Categorization**: Legacies are grouped logically for better user experience
+- **Preference Storage**: User rankings are securely stored and integrated with assessment results
+
+### 🎨 User Experience Design
+- **Progress Tracking**: Clear visual indicators showing sorting progress across groups
+- **Responsive Design**: Optimized for both desktop and mobile interactions
+- **Smooth Animations**: Framer Motion animations for seamless transitions between states
+- **Error Prevention**: Intuitive design prevents common user errors during sorting
+
 ## 🔄 How It Works
 
 1. **🔐 Secure Authentication**: 
@@ -171,32 +209,42 @@ Each question offers 5 multiple-choice options, each aligned with one of the fiv
    - Smooth page transitions using Framer Motion with optimized performance
    - Auto-save functionality to preserve user progress
    
-3. **🔒 Secure Response Collection**: 
+3. **🎯 Interactive Legacy Sorting**: 
+   - Drag-and-drop interface for ranking legacy preferences using @dnd-kit
+   - Group-based sorting system for organized preference collection
+   - Accessibility-first design with keyboard navigation and screen reader support
+   - Real-time progress tracking through multi-step sorting process
+   
+4. **🔒 Secure Response Collection**: 
    - All user responses validated and sanitized before storage using enterprise-grade security
    - Real-time data synchronization with Firebase Firestore
    - Comprehensive input validation preventing XSS and injection attacks
    - Encrypted data transmission with HTTPS enforcement
    
-4. **🧮 Intelligent Assessment Generation**: 
+5. **🧮 Intelligent Assessment Generation**: 
    - Advanced personality assessment algorithms based on response patterns across ILO categories
+   - Integration of legacy preferences with question responses for comprehensive analysis
    - Client-side calculation for enhanced privacy and performance
    - Statistical analysis of response distributions and consistency
    
-5. **📊 Personalized Results Display**: 
+6. **📊 Personalized Results Display**: 
    - Dynamic results presentation showing dominant identity traits with visual analytics
-   - Interactive charts and progress indicators
+   - Interactive charts and progress indicators with celebration animations
+   - Integration of legacy preference rankings with personality assessment results
    - Downloadable assessment reports with detailed insights
 
 ## 🎨 UI/UX Features
 
 - **🎭 Smooth Animations**: Framer Motion provides fluid page transitions, micro-interactions, and loading states
+- **🎮 Interactive Drag & Drop**: @dnd-kit implementation for accessible, smooth drag-and-drop sorting functionality
 - **📱 Responsive Design**: Mobile-first approach with Tailwind CSS utilities and breakpoint optimization
 - **✨ Modern Glassmorphism UI**: Contemporary design with backdrop blur effects and gradient backgrounds
-- **♿ Accessible Components**: Radix UI primitives ensure WCAG compliance and keyboard navigation
+- **♿ Accessible Components**: Radix UI primitives and @dnd-kit ensure WCAG compliance and keyboard navigation
 - **⏳ Enhanced Loading States**: Visual feedback with animated spinners during authentication and data processing
 - **🎯 Smart Error Handling**: User-friendly error messages with security considerations and contextual help
 - **🎨 Dynamic Theme Elements**: Consistent color schemes and interactive hover/focus states
-- **📊 Progress Indicators**: Visual survey progress with animated progress bars
+- **📊 Progress Indicators**: Visual survey progress with animated progress bars and step completion
+- **🎉 Celebration Animations**: React Confetti integration for successful completion feedback
 
 ## 🔒 Security Features
 
@@ -295,4 +343,4 @@ Ensure all required environment variables are configured:
 - **Environment Management**: Secure environment variable handling across development/production
 - **Security Headers**: Automated security header injection in production builds
 
-**Built with ❤️ for Minerva University**
+**Built with ❤️ for Minerva University - 2025**

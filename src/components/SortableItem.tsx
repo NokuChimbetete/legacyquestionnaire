@@ -19,7 +19,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || 'transform 250ms ease',
+    transition: transition ?? 'transform 100ms ease',
     zIndex: isDragging ? 1 : 0,
     position: 'relative' as const,
     opacity: isDragging ? 0 : 1,
