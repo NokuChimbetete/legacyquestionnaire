@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { db } from "./../../firebase";
 import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
 import { auth } from "./../../firebase";
+import { animationVariants, withDelay } from "~/utils/animationUtils";
 
 const FinalPage: React.FC = () => {
   const [vibe, setVibe] = useState<string>("evaluating...");
@@ -115,20 +116,17 @@ const FinalPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-purple-50 flex items-center justify-center p-6">
       <motion.div
-        initial={{ opacity: 0, scale: 0.8, y: 50 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
+        {...animationVariants.scaleSpring}
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="max-w-2xl w-full text-center"
       >
         <motion.div
           className="bg-white/90 backdrop-blur-lg rounded-3xl p-12 shadow-2xl border border-gray-100"
-          transition={{ duration: 0.3 }}
         >
           {/* Celebration Icon */}
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.5, type: "spring", bounce: 0.5 }}
+            {...withDelay(animationVariants.scaleSpring, 0.3)}
+            transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
             className="mb-8"
           >
             <div className="w-24 h-24 mx-auto bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
@@ -140,24 +138,17 @@ const FinalPage: React.FC = () => {
 
           <motion.h1 
             className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-4 leading-tight"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            {...withDelay(animationVariants.slideUp, 0.4)}
           >
             Your Minerva Vibe is...
           </motion.h1>
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
+            {...withDelay(animationVariants.slideUp, 0.8)}
             className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl mb-8 p-8 border border-blue-100"
           >           
-            
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 1, duration: 0.5, type: "spring", bounce: 0.3 }}
+              {...withDelay(animationVariants.scaleSpring, 1)}
               className="inline-block"
             >
               {vibe === "evaluating..." ? (
@@ -175,17 +166,13 @@ const FinalPage: React.FC = () => {
           
           <motion.p 
             className="text-xl text-gray-600 leading-relaxed"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            {...withDelay(animationVariants.slideUp, 0.6)}
           >
             Get ready for an amazing Foundation Week experience!
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.6 }}
+            {...withDelay(animationVariants.fadeIn, 1.2)}
             className="mt-8"
           >
             <p className="text-gray-600 text-sm">

@@ -6,9 +6,10 @@ import type { User } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./../../../firebase";
 import Papa from "papaparse";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ProgressBar from "../../components/ProgressBar";
 import { sanitizeInput, validateInput, rateLimiter } from "../../utils/security";
+import { animationVariants, interactions } from "~/utils/animationUtils";
 
 interface QuestionData {
   ILO: string;
@@ -250,23 +251,20 @@ const QuestionPage: React.FC = () => {
         console.log("Updated response document:", responseId);
       }
 
-      // Small delay to ensure smooth scroll completes before navigation
-      setTimeout(() => {
-        // Navigate to next question or final page
-        const nextQuestionId = currentQuestion + 1;
-        if (nextQuestionId <= questions.length) {
-          void router.push(`/questions/${nextQuestionId}`);
-        } else {
-          // Mark as completed when going to final page
-          if (responseId) {
-            void updateDoc(doc(db, "responses", responseId), {
-              completedAt: new Date(),
-              isCompleted: true
-            });
-          }
-          void router.push("/Final");
+      // Navigate to next question or final page
+      const nextQuestionId = currentQuestion + 1;
+      if (nextQuestionId <= questions.length) {
+        void router.push(`/questions/${nextQuestionId}`);
+      } else {
+        // Mark as completed when going to final page
+        if (responseId) {
+          void updateDoc(doc(db, "responses", responseId), {
+            completedAt: new Date(),
+            isCompleted: true
+          });
         }
-      }, 300);
+        void router.push("/Final");
+      }
     } catch (error) {
       console.error("Error saving response:", error);
       setValidationError("Failed to save response. Please try again.");
@@ -279,126 +277,112 @@ const QuestionPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
       <ProgressBar current={currentQuestion} total={questions.length} />
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-6 pt-32">
-        <motion.div
-          key={currentQuestion}
-          className="w-full max-w-2xl motion-element"
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -30, scale: 0.95 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        >
-          <motion.div 
-            className="relative rounded-2xl bg-white p-8 shadow-xl border border-gray-100 backdrop-blur-sm"
-            transition={{ duration: 0.2 }}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`question-${currentQuestion}`}
+            className="w-full max-w-2xl"
+            {...animationVariants.scaleIn}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            {/* ILO Section Indicator */}
             <motion.div 
-              className="mb-6 flex items-center justify-between"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
+              className="relative rounded-2xl bg-white p-8 shadow-xl border border-gray-100 backdrop-blur-sm"
             >
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">
-                  Question {currentQuestion} of {questions.length}
-                </span>
-              </div>
-            </motion.div>
-
-            <motion.h2 
-              className="mb-6 text-3xl font-bold text-gray-900 leading-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {question.Question}
-            </motion.h2>
-
-            <motion.form
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.1 }}
-            >
-              <div className="space-y-3">                {["A","B","C","D","E"].map((opt, _index) => (
-                  <motion.label
-                    key={opt}
-                    className={`group relative block cursor-pointer rounded-xl border-2 p-6 ${
-                      selectedOption === getGroupValue(question, opt)
-                        ? "border-blue-500 bg-blue-50 shadow-md"
-                        : "border-gray-200 bg-white"
-                    }`}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2 }}
-                    whileHover={{ 
-                      scale: 1.02,
-                      borderColor: selectedOption === getGroupValue(question, opt) ? "#3b82f6" : "#9ca3af",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                      transition: { duration: 0.2 }
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        name={`question${currentQuestion}`}
-                        value={getGroupValue(question, opt)}
-                        checked={selectedOption === getGroupValue(question, opt)}
-                        onChange={() => handleOptionChange(getGroupValue(question, opt))}
-                        className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-0 focus:outline-none mr-4 flex-shrink-0"
-                      />
-                      <span className="text-lg text-gray-800 leading-relaxed group-hover:text-gray-900">
-                        {getOptionValue(question, opt)}
-                      </span>
-                    </div>
-                    {selectedOption === getGroupValue(question, opt)}
-                  </motion.label>
-                ))}
-              </div>
-            </motion.form>
-
-            <motion.div
-              className="mt-8 flex justify-end"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >              <motion.button
-                onClick={goToNextQuestion}
-                disabled={!selectedOption || isSubmitting}
-                className={`flex items-center space-x-2 rounded-xl px-8 py-4 font-semibold text-white shadow-lg transition-all duration-150 ${
-                  selectedOption && !isSubmitting
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:shadow-xl" 
-                    : "bg-gray-300 cursor-not-allowed"
-                }`}
-                whileHover={selectedOption && !isSubmitting ? { scale: 1.05 } : {}}
-                whileTap={selectedOption && !isSubmitting ? { scale: 0.95 } : {}}
-                animate={selectedOption && !isSubmitting ? { 
-                  boxShadow: "0 10px 25px rgba(59, 130, 246, 0.3)" 
-                } : {}}
+              {/* ILO Section Indicator */}
+              <motion.div 
+                className="mb-6 flex items-center justify-between"
+                {...animationVariants.fadeIn}
               >
-                <span>
-                  {isSubmitting ? "Saving..." : currentQuestion === questions.length ? "Complete Survey" : "Next Question"}
-                </span>
-                {!isSubmitting && (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                )}
-              </motion.button>
-            </motion.div>
-            
-            {/* Error Message */}
-            {validationError && (
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-4 text-sm text-red-600 text-center"
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500">
+                    Question {currentQuestion} of {questions.length}
+                  </span>
+                </div>
+              </motion.div>
+
+              <motion.h2 
+                className="mb-6 text-3xl font-bold text-gray-900 leading-tight"
+                {...animationVariants.slideUp}
               >
-                {validationError}
-              </motion.p>
-            )}
+                {question.Question}
+              </motion.h2>
+
+              <motion.form
+                {...animationVariants.fadeIn}
+              >
+                <motion.div 
+                  className="space-y-3"
+                  variants={animationVariants.container}
+                  initial="initial"
+                  animate="animate"
+                >
+                  {["A","B","C","D","E"].map((opt, index) => (
+                    <motion.label
+                      key={opt}
+                      className={`group relative block cursor-pointer rounded-xl border-2 p-6 ${
+                        selectedOption === getGroupValue(question, opt)
+                          ? "border-blue-500 bg-blue-50 shadow-md"
+                          : "border-gray-200 bg-white"
+                      }`}
+                      variants={animationVariants.item}
+                      whileHover={interactions.cardHover}
+                      whileTap={interactions.tap}
+                    >
+                      <div className="flex items-center">
+                        <input
+                          type="radio"
+                          name={`question${currentQuestion}`}
+                          value={getGroupValue(question, opt)}
+                          checked={selectedOption === getGroupValue(question, opt)}
+                          onChange={() => handleOptionChange(getGroupValue(question, opt))}
+                          className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-0 focus:outline-none mr-4 flex-shrink-0"
+                        />
+                        <span className="text-lg text-gray-800 leading-relaxed group-hover:text-gray-900">
+                          {getOptionValue(question, opt)}
+                        </span>
+                      </div>
+                    </motion.label>
+                  ))}
+                </motion.div>
+              </motion.form>
+
+              <motion.div
+                className="mt-8 flex justify-end"
+                {...animationVariants.slideUp}
+              >
+                <motion.button
+                  onClick={goToNextQuestion}
+                  disabled={!selectedOption || isSubmitting}
+                  className={`flex items-center space-x-2 rounded-xl px-8 py-4 font-semibold text-white shadow-lg transition-all duration-150 ${
+                    selectedOption && !isSubmitting
+                      ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:shadow-xl" 
+                      : "bg-gray-300 cursor-not-allowed"
+                  }`}
+                  whileHover={selectedOption && !isSubmitting ? interactions.buttonHover : {}}
+                  whileTap={selectedOption && !isSubmitting ? interactions.tap : {}}
+                >
+                  <span>
+                    {isSubmitting ? "Saving..." : currentQuestion === questions.length ? "Complete Survey" : "Next Question"}
+                  </span>
+                  {!isSubmitting && (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  )}
+                </motion.button>
+              </motion.div>
+              
+              {/* Error Message */}
+              {validationError && (
+                <motion.p
+                  {...animationVariants.slideUp}
+                  className="mt-4 text-sm text-red-600 text-center"
+                >
+                  {validationError}
+                </motion.p>
+              )}
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   );

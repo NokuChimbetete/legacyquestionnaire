@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import "~/styles/globals.css";
 import Head from "next/head";
 import {Open_Sans, Kalam} from "next/font/google";
+import { animationVariants } from "~/utils/animationUtils";
 
 const opensans = Open_Sans({
   subsets: ['latin'],
@@ -14,32 +15,6 @@ const kalam = Kalam({
   subsets: ['latin'],
   weight: ['300', '400', '700'],
 });
-
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    y: 20,
-    scale: 0.98,
-  },
-  enter: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.4,
-      ease: [0.4, 0, 0.2, 1],
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: -20,
-    scale: 0.98,
-    transition: {
-      duration: 0.3,
-      ease: [0.4, 0, 0.2, 1],
-    },
-  },
-};
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const router = useRouter();
@@ -63,21 +38,16 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         onExitComplete={() => {
           // Smooth scroll to top on page change
           window.scrollTo({ top: 0, behavior: 'smooth' });
-          // Remove transitioning class
-          document.body.classList.remove('page-transitioning');
         }}
       >
         <motion.div
           key={router.route}
-          variants={pageVariants}
+          variants={animationVariants.pageTransition}
           initial="initial"
           animate="enter"
           exit="exit"
-          className="min-h-screen motion-element"
-          onAnimationStart={() => {
-            // Add transitioning class to prevent conflicts
-            document.body.classList.add('page-transitioning');
-          }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="min-h-screen"
         >
           <Component {...pageProps} />
         </motion.div>
