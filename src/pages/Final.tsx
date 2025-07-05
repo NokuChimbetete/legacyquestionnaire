@@ -93,6 +93,8 @@ const FinalPage: React.FC = () => {
                   categoryTally: tally,
                   calculatedAt: new Date()
                 },
+                completedAt: new Date(),
+                isCompleted: true,
                 lastUpdated: new Date()
               });
               console.log("Results saved to Firestore");

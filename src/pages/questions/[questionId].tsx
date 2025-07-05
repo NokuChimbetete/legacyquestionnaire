@@ -251,19 +251,19 @@ const QuestionPage: React.FC = () => {
         console.log("Updated response document:", responseId);
       }
 
-      // Navigate to next question or final page
+      // Navigate to next question or sorting page
       const nextQuestionId = currentQuestion + 1;
       if (nextQuestionId <= questions.length) {
         void router.push(`/questions/${nextQuestionId}`);
       } else {
-        // Mark as completed when going to final page
+        // Mark as completed when going to sorting page
         if (responseId) {
           void updateDoc(doc(db, "responses", responseId), {
-            completedAt: new Date(),
-            isCompleted: true
+            questionsCompletedAt: new Date(),
+            questionsCompleted: true
           });
         }
-        void router.push("/Final");
+        void router.push("/sorting");
       }
     } catch (error) {
       console.error("Error saving response:", error);

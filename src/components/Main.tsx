@@ -54,7 +54,7 @@ const MainSection: React.FC = () => {
             
             <motion.button 
               className="w-full mt-8 rounded-xl bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-3 text-white font-semibold shadow-lg hover:from-gray-700 hover:to-gray-800 hover:shadow-xl"
-              {...withDelay(animationVariants.slideUp, 0.7)}
+              {...withDelay(animationVariants.slideUp, 0)}
               whileHover={interactions.hover}
               whileTap={interactions.tap}
             >
