@@ -136,9 +136,27 @@ const SortingPage: React.FC = () => {
     }
   };
 
+  const getProgressMessage = () => {
+    const progress = (currentGroupIndex + 1) / legacyGroups.length;
+    if (progress < 0.25) {
+      return "It's the last set!";
+    }
+    if (progress < 0.5) {
+      return "Making good progress!";
+    }
+    if (progress < 0.75) {
+      return "You're doing great!";
+    }
+    return "You're almost there!";
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <ProgressBar current={currentGroupIndex + 1} total={legacyGroups.length} />
+      <ProgressBar
+        current={currentGroupIndex + 1}
+        total={legacyGroups.length}
+        isCompleted={currentGroupIndex === legacyGroups.length - 1 && isSubmitting}
+      />
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-6 pt-32">
         <motion.div
           className="w-full max-w-2xl"
@@ -157,7 +175,13 @@ const SortingPage: React.FC = () => {
               <h1 className="mb-2 text-3xl font-bold text-gray-900">
                 Sort Your Mottos!
               </h1>
-              <p className="text-gray-600">Drag and drop to rank the following statements.</p>
+                
+                <p className="font-bold bg-gradient-to-r from-red-500 via-yellow-400 via-green-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
+                  {getProgressMessage()}
+                </p>
+                <p className="text-gray-600 mt-2">
+                  Drag and drop to rank the following statements.
+                </p>
             </motion.div>
 
             <DndContext

@@ -5,10 +5,12 @@ import { animationVariants, optimizedStyles } from "~/utils/animationUtils";
 interface ProgressBarProps {
   current: number;
   total: number;
+  isCompleted?: boolean;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ current, total }) => {
-  const percent = Math.round((current / total) * 100);
+const ProgressBar: React.FC<ProgressBarProps> = ({ current, total, isCompleted }) => {
+  const percent = Math.round(((current - 1) / total) * 100);
+  const displayPercent = isCompleted ? 100 : percent;
   
   return (
     <motion.div 
@@ -30,7 +32,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ current, total }) => {
           <motion.div
             className="absolute h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-sm"
             initial={{ width: 0 }}
-            animate={{ width: `${percent}%` }}
+            animate={{ width: `${displayPercent}%` }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             style={optimizedStyles}
           />
@@ -52,10 +54,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ current, total }) => {
         <div className="mt-2 text-center">
           <motion.span 
             className="text-xs text-gray-500"
-            key={percent}
+            key={displayPercent}
             {...animationVariants.scaleIn}
           >
-            {percent}% Complete
+            {displayPercent}% Complete
           </motion.span>
         </div>
       </div>

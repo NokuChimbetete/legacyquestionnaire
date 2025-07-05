@@ -40,5 +40,6 @@ export const getLegacyGroups = (legacies: Legacy[]): Legacy[][] => {
     legacies.slice(10, 15),
     legacies.slice(15, 20),
     legacies.slice(20, 25),
+    legacies.slice(25, 30),
   ];
 };

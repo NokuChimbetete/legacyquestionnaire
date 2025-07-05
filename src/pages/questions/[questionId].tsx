@@ -275,7 +275,11 @@ const QuestionPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
-      <ProgressBar current={currentQuestion} total={questions.length} />
+      <ProgressBar
+        current={currentQuestion}
+        total={questions.length}
+        isCompleted={currentQuestion === questions.length && isSubmitting}
+      />
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-6 pt-32">
         <AnimatePresence mode="wait">
           <motion.div
