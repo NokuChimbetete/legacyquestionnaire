@@ -263,7 +263,7 @@ const QuestionPage: React.FC = () => {
             questionsCompleted: true
           });
         }
-        void router.push("/sorting");
+        void router.push(`/sorting?responseId=${responseId}`);
       }
     } catch (error) {
       console.error("Error saving response:", error);
