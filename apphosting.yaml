@@ -1,0 +1,44 @@
+# Settings for Backend (on Cloud Run).
+# See https://firebase.google.com/docs/app-hosting/configure#cloud-run
+runConfig:
+  minInstances: 0
+  # maxInstances: 100
+  # concurrency: 80
+  # cpu: 1
+  # memoryMiB: 512
+
+# Environment variables and secrets.
+env:
+  # Configure environment variables.
+  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: AIzaSyB-saN-elh1TmTOOxHOuQ5JDZtVos9oFHI
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: legacyquestionnaire-minerva.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: legacyquestionnaire-minerva
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: legacyquestionnaire-minerva.firebasestorage.app
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "419708047516"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    secret: 1:419708047516:web:05ab0de1c5a1c4ae5c5d59
+  - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    secret: G-WVD6VRW1RH
+
+  # Grant access to secrets in Cloud Secret Manager.
+  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
+  # - variable: MY_SECRET
+  #   secret: mySecretRef
