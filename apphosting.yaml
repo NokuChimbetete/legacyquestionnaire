@@ -7,12 +7,12 @@ runConfig:
   # cpu: 1
   # memoryMiB: 512
 
-# Environment variables and secrets.
+  # Environment variables and secrets.
 env:
   # Configure environment variables.
   # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    secret: AIzaSyB-saN-elh1TmTOOxHOuQ5JDZtVos9oFHI
+    secret: firebase-api-key
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: legacyquestionnaire-minerva.firebaseapp.com
     availability:
@@ -34,10 +34,9 @@ env:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    secret: 1:419708047516:web:05ab0de1c5a1c4ae5c5d59
+    secret: firebase-app-id
   - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
-    secret: G-WVD6VRW1RH
-
+    secret: firebase-measurement-id
   # Grant access to secrets in Cloud Secret Manager.
   # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
   # - variable: MY_SECRET
