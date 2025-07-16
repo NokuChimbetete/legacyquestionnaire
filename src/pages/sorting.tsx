@@ -16,16 +16,16 @@ import {
   type DragEndEvent,
   DragOverlay,
   type DragStartEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { SortableItem } from '~/components/SortableItem';
-import { useLegacies, getLegacyGroups, type Legacy } from '~/utils/legacies';
-import ProgressBar from '~/components/ProgressBar';
+} from "@dnd-kit/sortable";
+import { SortableItem } from "~/components/SortableItem";
+import { useLegacies, getLegacyGroups, type Legacy } from "~/utils/legacies";
+import ProgressBar from "~/components/ProgressBar";
 
 const SortingPage: React.FC = () => {
   const router = useRouter();
@@ -38,6 +38,7 @@ const SortingPage: React.FC = () => {
   const [legacyGroups, setLegacyGroups] = useState<Legacy[][]>([]);
   const [items, setItems] = useState<string[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (legacies.length > 0) {
@@ -50,29 +51,53 @@ const SortingPage: React.FC = () => {
     }
   }, [legacies, currentGroupIndex]);
 
+  // Cleanup drag state on component unmount
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove("dragging");
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    setActiveId(String((event.active as { id: string }).id));
+    setIsDragging(true);
+    // Prevent body scroll on mobile during drag
+    document.body.classList.add("dragging");
+    document.body.style.overflow = "hidden";
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const {active, over} = event;
-    
-    if (over && active.id !== over.id) {
+    const { active, over } = event;
+
+    if (over && (active as { id: string }).id !== (over as { id: string }).id) {
       setItems((currentItems) => {
-        const oldIndex = currentItems.indexOf(active.id as string);
-        const newIndex = currentItems.indexOf(over.id as string);
+        const oldIndex = currentItems.indexOf(
+          String((active as { id: string }).id),
+        );
+        const newIndex = currentItems.indexOf(
+          String((over as { id: string }).id),
+        );
         return arrayMove(currentItems, oldIndex, newIndex);
       });
     }
 
     setActiveId(null);
+    setIsDragging(false);
+    // Restore body scroll after drag
+    document.body.classList.remove("dragging");
+    document.body.style.overflow = "";
   };
 
   // Monitor auth state
@@ -91,7 +116,7 @@ const SortingPage: React.FC = () => {
 
   // Redirect to login if not authenticated
   if (!user) {
-    void router.push('/');
+    void router.push("/");
     return <div>Redirecting to login...</div>;
   }
 
@@ -119,7 +144,7 @@ const SortingPage: React.FC = () => {
         const nextGroupIndex = currentGroupIndex + 1;
         const nextGroup = legacyGroups[nextGroupIndex];
         if (nextGroup) {
-          setItems(nextGroup.map(legacy => legacy.name));
+          setItems(nextGroup.map((legacy) => legacy.name));
         }
         setCurrentGroupIndex(nextGroupIndex);
       } else {
@@ -155,7 +180,9 @@ const SortingPage: React.FC = () => {
       <ProgressBar
         current={currentGroupIndex + 1}
         total={legacyGroups.length}
-        isCompleted={currentGroupIndex === legacyGroups.length - 1 && isSubmitting}
+        isCompleted={
+          currentGroupIndex === legacyGroups.length - 1 && isSubmitting
+        }
       />
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-6 pt-32">
         <motion.div
@@ -164,24 +191,34 @@ const SortingPage: React.FC = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <motion.div 
+          <motion.div
             className="rounded-xl bg-white p-8 shadow-xl"
             {...animationVariants.fadeIn}
           >
-            <motion.div 
+            <motion.div
               className="mb-6 text-center"
               {...animationVariants.slideUp}
             >
               <h1 className="mb-2 text-3xl font-bold text-gray-900">
                 Sort Your Mottos!
               </h1>
-                
-                <p className="font-bold bg-gradient-to-r from-red-500 via-yellow-400 via-green-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
-                  {getProgressMessage()}
-                </p>
-                <p className="text-gray-600 mt-2">
-                  Drag and drop to rank the following statements.
-                </p>
+
+              <p className="bg-gradient-to-r from-red-500 via-blue-400 to-purple-500 bg-clip-text font-bold text-transparent">
+                {getProgressMessage()}
+              </p>
+              <p className="mt-2 text-gray-600">
+                <span className="hidden sm:inline">Drag and drop</span>
+                <span className="sm:hidden">Touch and drag</span> to rank the
+                following statements from most important to least important.
+              </p>
+              <p className="mt-1 text-sm text-gray-500">
+                <span className="sm:hidden">
+                  Tip: Press and hold each item, then drag to reorder
+                </span>
+                <span className="hidden sm:inline">
+                  Use the drag handles on the right to reorder items
+                </span>
+              </p>
             </motion.div>
 
             <DndContext
@@ -199,17 +236,45 @@ const SortingPage: React.FC = () => {
                     <SortableItem key={id} id={id}>
                       <motion.div
                         layoutId={id}
-                        className="group relative block cursor-grab rounded-xl border-2 border-gray-200 bg-white p-6 shadow-sm active:cursor-grabbing active:border-blue-500 active:bg-blue-50"
+                        className={`sortable-item group relative block cursor-grab rounded-xl border-2 border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 active:cursor-grabbing active:border-blue-500 active:bg-blue-50 ${
+                          isDragging && activeId === id
+                            ? "scale-105 opacity-50"
+                            : ""
+                        }`}
                         whileHover={interactions.cardHover}
                         whileTap={interactions.tap}
+                        style={{
+                          touchAction: "none",
+                          userSelect: "none",
+                          WebkitUserSelect: "none",
+                          MozUserSelect: "none",
+                          msUserSelect: "none",
+                        }}
                       >
                         <div className="flex items-center">
                           <span className="mr-4 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-lg font-bold text-gray-500 transition-colors group-active:bg-blue-100 group-active:text-blue-600">
                             {index + 1}
                           </span>
-                          <span className="text-left text-lg leading-relaxed text-gray-800 group-hover:text-gray-900">
-                            {legacyGroups[currentGroupIndex]?.find(legacy => legacy.name === id)?.text}
+                          <span className="flex-grow text-left text-lg leading-relaxed text-gray-800 group-hover:text-gray-900">
+                            {legacyGroups[currentGroupIndex]?.find(
+                              (legacy) => legacy.name === id,
+                            )?.text ?? ""}
                           </span>
+                          <div className="ml-4 flex-shrink-0 opacity-40 transition-opacity group-hover:opacity-60">
+                            <svg
+                              className="h-6 w-6 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 8h16M4 16h16"
+                              />
+                            </svg>
+                          </div>
                         </div>
                       </motion.div>
                     </SortableItem>
@@ -220,11 +285,41 @@ const SortingPage: React.FC = () => {
                 {activeId ? (
                   <motion.div
                     layoutId={activeId}
-                    className="group relative block cursor-grabbing rounded-xl border-2 border-blue-500 bg-blue-50 p-6 text-center shadow-lg"
+                    className="group relative block scale-105 transform cursor-grabbing rounded-xl border-2 border-blue-500 bg-blue-50 p-6 text-center shadow-xl"
+                    style={{
+                      touchAction: "none",
+                      userSelect: "none",
+                      WebkitUserSelect: "none",
+                      MozUserSelect: "none",
+                      msUserSelect: "none",
+                      zIndex: 1000,
+                    }}
                   >
-                    <span className="text-lg text-gray-800 leading-relaxed group-hover:text-gray-900">
-                      {legacyGroups[currentGroupIndex]?.find(legacy => legacy.name === activeId)?.text}
-                    </span>
+                    <div className="flex items-center">
+                      <span className="mr-4 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-600">
+                        {activeId ? items.indexOf(activeId) + 1 : 0}
+                      </span>
+                      <span className="flex-grow text-lg leading-relaxed text-gray-800 group-hover:text-gray-900">
+                        {legacyGroups[currentGroupIndex]?.find(
+                          (legacy) => legacy.name === activeId,
+                        )?.text ?? ""}
+                      </span>
+                      <div className="ml-4 flex-shrink-0 opacity-60">
+                        <svg
+                          className="h-6 w-6 text-blue-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 8h16M4 16h16"
+                          />
+                        </svg>
+                      </div>
+                    </div>
                   </motion.div>
                 ) : null}
               </DragOverlay>
@@ -237,7 +332,7 @@ const SortingPage: React.FC = () => {
                 className={`flex items-center space-x-2 rounded-xl px-8 py-4 font-semibold text-white shadow-lg transition-all duration-150 ${
                   !isSubmitting
                     ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:shadow-xl"
-                    : "bg-gray-300 cursor-not-allowed"
+                    : "cursor-not-allowed bg-gray-300"
                 }`}
                 whileHover={!isSubmitting ? interactions.buttonHover : {}}
                 whileTap={!isSubmitting ? interactions.tap : {}}
@@ -246,12 +341,22 @@ const SortingPage: React.FC = () => {
                   {isSubmitting
                     ? "Saving..."
                     : currentGroupIndex < legacyGroups.length - 1
-                    ? "Next Group"
-                    : "Submit Rankings"}
+                      ? "Next Group"
+                      : "Submit Rankings"}
                 </span>
                 {!isSubmitting && (
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 )}
               </motion.button>

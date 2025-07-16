@@ -16,7 +16,8 @@
 }
 
 /* Smooth scrolling for html and body only */
-html, body {
+html,
+body {
   scroll-behavior: smooth;
 }
 
@@ -56,6 +57,34 @@ html, body {
 /* Smooth page transitions */
 body {
   overflow-x: hidden;
+}
+
+/* Mobile touch support for drag and drop */
+.touch-none {
+  touch-action: none;
+}
+
+/* Prevent text selection during drag operations */
+.select-none {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Improve touch targets for mobile devices */
+@media (max-width: 768px) {
+  .sortable-item {
+    min-height: 60px;
+    padding: 16px;
+  }
+
+  /* Prevent bounce scrolling on iOS during drag */
+  body.dragging {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
 }
 
 /* Reduce motion for users with accessibility preferences */
