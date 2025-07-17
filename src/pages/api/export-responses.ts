@@ -1,15 +1,26 @@
+// legacyquestionnaire/src/pages/api/export-responses.ts#L3-19
 import type { NextApiRequest, NextApiResponse } from "next";
 import admin from "firebase-admin";
 
-// Use environment variables for Firebase Admin SDK credentials (Firebase Hosting/Cloud Functions compatible)
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    }),
-  });
+  // Use application default credentials on Firebase App Hosting (production)
+  // Use explicit credentials for local development or emulators
+  if (
+    process.env.FUNCTIONS_EMULATOR === "true" ||
+    process.env.NODE_ENV === "development"
+  ) {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      }),
+    });
+  } else {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+    });
+  }
 }
 
 const db = admin.firestore();
