@@ -249,9 +249,10 @@ const QuestionPage: React.FC = () => {
           const data = responseDoc.data();
           const questionKey = `q${currentQuestion}_${questions[currentQuestion - 1]?.ILO}`;
           
-          if (data[questionKey] && data[questionKey].answer) {
-            console.log(`Loading existing answer for question ${currentQuestion}:`, data[questionKey].answer);
-            setSelectedOption(data[questionKey].answer);
+          const questionData = data[questionKey] as { answer?: string } | undefined;
+          if (questionData?.answer) {
+            console.log(`Loading existing answer for question ${currentQuestion}:`, questionData.answer);
+            setSelectedOption(questionData.answer);
             setShowAnswerLoaded(true);
             // Hide the indicator after 2 seconds
             setTimeout(() => setShowAnswerLoaded(false), 2000);
