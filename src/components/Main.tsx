@@ -17,7 +17,7 @@ const MainSection: React.FC = () => {
     const newCount = heartClicks + 1;
     setHeartClicks(newCount);
     if (newCount === 10) {
-      router.push("/secret");
+      void router.push("/secret");
     }
   };
 

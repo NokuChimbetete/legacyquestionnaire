@@ -49,9 +49,13 @@ export default async function handler(
 
     // Add rows
     snapshot.forEach((doc) => {
-      const data = doc.data();
+      const data = doc.data() as Record<string, unknown>;
       const row = CSV_COLUMNS.map((col) => {
         let value = data[col];
+        // Convert Firestore Timestamp to ISO string
+        if (value instanceof admin.firestore.Timestamp) {
+          value = value.toDate().toISOString();
+        }
         // Convert objects to JSON string for CSV
         if (typeof value === "object" && value !== null) {
           value = JSON.stringify(value);
@@ -63,11 +67,11 @@ export default async function handler(
         ) {
           value = `"${value.replace(/"/g, '""')}"`;
         }
-        // Convert Firestore Timestamp to ISO string
-        if (value instanceof admin.firestore.Timestamp) {
-          value = value.toDate().toISOString();
-        }
-        return value ?? "";
+        // Always return a string
+        if (typeof value === "string") return value;
+        if (typeof value === "number" || typeof value === "boolean")
+          return String(value);
+        return value !== undefined && value !== null ? String(value) : "";
       }).join(",");
       csv += row + "\n";
     });
