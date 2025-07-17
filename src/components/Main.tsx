@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import LoginForm from "./LoginForm";
 import { motion } from "framer-motion";
+import { useRouter } from "next/router";
 import {
   animationVariants,
   withDelay,
@@ -9,6 +10,17 @@ import {
 } from "~/utils/animationUtils";
 
 const MainSection: React.FC = () => {
+  const [heartClicks, setHeartClicks] = useState(0);
+  const router = useRouter();
+
+  const handleHeartClick = () => {
+    const newCount = heartClicks + 1;
+    setHeartClicks(newCount);
+    if (newCount === 10) {
+      router.push("/secret");
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-white via-gray-50 to-white p-6">
       <motion.div
@@ -61,7 +73,7 @@ const MainSection: React.FC = () => {
               whileHover={interactions.hover}
               whileTap={interactions.tap}
               onClick={() =>
-                  (window.location.href = "mailto:legacies@minerva.edu")
+                (window.location.href = "mailto:legacies@minerva.edu")
               }
             >
               Contact Us
@@ -82,7 +94,13 @@ const MainSection: React.FC = () => {
             }}
           >
             <div className="mb-2">made with</div>
-            <div className="mb-2 text-2xl">❤️</div>
+            <div
+              className="mb-2 cursor-pointer select-none text-2xl"
+              onClick={handleHeartClick}
+              title="Click me 10 times!"
+            >
+              ❤️
+            </div>
             <div className="mb-1">for Minerva University</div>
             <div className="text-sm italic">- Rafael, M28</div>
           </div>
