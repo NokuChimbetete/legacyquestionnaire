@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { auth, db } from "../../firebase";
@@ -27,6 +27,23 @@ import { SortableItem } from "~/components/SortableItem";
 import { useLegacies, getLegacyGroups, type Legacy } from "~/utils/legacies";
 import ProgressBar from "~/components/ProgressBar";
 
+// Extend Window interface to include lastPointerY
+declare global {
+  interface Window {
+    lastPointerY?: number;
+  }
+}
+
+// Helper to detect if device is mobile
+function isMobileDevice() {
+  if (typeof window === "undefined") return false;
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  );
+}
+
 const SortingPage: React.FC = () => {
   const router = useRouter();
   const { responseId } = router.query;
@@ -39,6 +56,7 @@ const SortingPage: React.FC = () => {
   const [items, setItems] = useState<string[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const autoScrollInterval = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (legacies.length > 0) {
@@ -73,10 +91,37 @@ const SortingPage: React.FC = () => {
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(String((event.active as { id: string }).id));
     setIsDragging(true);
-    // Prevent body scroll on mobile during drag
-    document.body.classList.add("dragging");
-    document.body.style.overflow = "hidden";
+    // Prevent body scroll on desktop only
+    if (!isMobileDevice()) {
+      document.body.classList.add("dragging");
+      document.body.style.overflow = "hidden";
+    }
+    // Start auto-scroll interval
+    if (autoScrollInterval.current) clearInterval(autoScrollInterval.current);
+    autoScrollInterval.current = setInterval(() => {
+      const vh = window.innerHeight;
+      const pointerY = window.lastPointerY;
+      if (pointerY !== undefined) {
+        if (pointerY > vh - 80) {
+          window.scrollBy({ top: 20, behavior: "smooth" });
+        } else if (pointerY < 80) {
+          window.scrollBy({ top: -20, behavior: "smooth" });
+        }
+      }
+    }, 50);
   };
+
+  // Listen to pointermove to track pointer Y position
+  useEffect(() => {
+    const handler = (e: PointerEvent) => {
+      window.lastPointerY = e.clientY;
+    };
+    window.addEventListener("pointermove", handler);
+    return () => {
+      window.removeEventListener("pointermove", handler);
+      delete window.lastPointerY;
+    };
+  }, []);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -95,9 +140,16 @@ const SortingPage: React.FC = () => {
 
     setActiveId(null);
     setIsDragging(false);
-    // Restore body scroll after drag
-    document.body.classList.remove("dragging");
-    document.body.style.overflow = "";
+    // Restore body scroll after drag (desktop only)
+    if (!isMobileDevice()) {
+      document.body.classList.remove("dragging");
+      document.body.style.overflow = "";
+    }
+    // Stop auto-scroll
+    if (autoScrollInterval.current) {
+      clearInterval(autoScrollInterval.current);
+      autoScrollInterval.current = null;
+    }
   };
 
   // Monitor auth state

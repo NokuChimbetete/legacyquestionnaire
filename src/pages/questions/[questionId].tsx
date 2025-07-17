@@ -443,16 +443,7 @@ const QuestionPage: React.FC = () => {
               className="relative rounded-2xl bg-white p-8 shadow-xl border border-gray-100 backdrop-blur-sm"
             >
               {/* ILO Section Indicator */}
-              <motion.div 
-                className="mb-6 flex items-center justify-between"
-                {...animationVariants.fadeIn}
-              >
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">
-                    Question {currentQuestion} of {questions.length}
-                  </span>
-                </div>
-              </motion.div>
+
 
               <motion.h2 
                 className="mb-6 text-3xl font-bold text-gray-900 leading-tight"
@@ -516,7 +507,7 @@ const QuestionPage: React.FC = () => {
               </motion.form>
 
               <motion.div
-                className="mt-8 flex justify-between"
+                className="mt-8 flex flex-col sm:flex-row justify-between gap-4"
                 {...animationVariants.slideUp}
               >
                 {/* Previous Button */}
@@ -526,25 +517,22 @@ const QuestionPage: React.FC = () => {
                       const prevQuestionId = currentQuestion - 1;
                       void router.push(`/questions/${prevQuestionId}`);
                     }}
-                    className="flex items-center space-x-2 rounded-xl px-8 py-4 font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 shadow-lg transition-all duration-150"
+                    className="flex items-center justify-center space-x-2 rounded-xl px-8 py-4 font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 shadow-lg transition-all duration-150 w-full sm:w-auto order-2 sm:order-1"
                     whileHover={interactions.buttonHover}
                     whileTap={interactions.tap}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span>Previous Question</span>
+                    <span className="hidden sm:inline">Previous Question</span>
+                    <span className="sm:hidden">Previous</span>
                   </motion.button>
                 )}
-                
-                {/* Spacer for centering when no previous button */}
-                {currentQuestion === 1 && <div></div>}
-                
                 {/* Next Button */}
                 <motion.button
                   onClick={goToNextQuestion}
                   disabled={!selectedOption || isSubmitting || !responseId}
-                  className={`flex items-center space-x-2 rounded-xl px-8 py-4 font-semibold text-white shadow-lg transition-all duration-150 ${
+                  className={`flex items-center justify-center space-x-2 rounded-xl px-8 py-4 font-semibold text-white shadow-lg transition-all duration-150 w-full sm:w-auto order-1 sm:order-2 ${
                     selectedOption && !isSubmitting && responseId
                       ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:shadow-xl" 
                       : "bg-gray-300 cursor-not-allowed"

@@ -24,7 +24,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ current, total, isCompleted }
             Progress
           </span>
           <span className="text-sm font-medium text-gray-800">
-            {current} of {total} completed
+            Question {current} of {total}
           </span>
         </div>
         
