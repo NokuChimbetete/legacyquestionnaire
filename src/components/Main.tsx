@@ -72,9 +72,27 @@ const MainSection: React.FC = () => {
               {...withDelay(animationVariants.slideUp, 0)}
               whileHover={interactions.hover}
               whileTap={interactions.tap}
-              onClick={() =>
-                (window.location.href = "mailto:legacies@minerva.edu")
-              }
+              onClick={async () => {
+                // Check for secret flag in localStorage
+                if (
+                  typeof window !== "undefined" &&
+                  window.localStorage.getItem("minervaSecretUnlocked") ===
+                    "true"
+                ) {
+                  // Prompt for password
+                  const password = window.prompt(
+                    "Enter the secret password to continue:",
+                  );
+                  if (password === "tenofhearts") {
+                    // Redirect to another secret page
+                    window.location.href = "/super-secret";
+                  } else if (password !== null) {
+                    window.alert("Incorrect password. Try again!");
+                  }
+                } else {
+                  window.location.href = "mailto:legacies@minerva.edu";
+                }
+              }}
             >
               Contact Us
             </motion.button>
