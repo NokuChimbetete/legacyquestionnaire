@@ -52,7 +52,7 @@ const MainSection: React.FC = () => {
               className="mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-center text-4xl font-bold leading-tight text-transparent"
               {...withDelay(animationVariants.slideUp, 0.4)}
             >
-              Minerva Vibe Check ✔️
+              My Minerva Vibe Check ✔️
             </motion.h1>
 
             <motion.p
