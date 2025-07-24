@@ -83,7 +83,7 @@ const MainSection: React.FC = () => {
                   const password = window.prompt(
                     "Enter the secret password to continue:",
                   );
-                  if (password === "tenofhearts") {
+                  if (password === "tenofheartsintheTL") {
                     // Redirect to another secret page
                     window.location.href = "/super-secret";
                   } else if (password !== null) {

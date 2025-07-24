@@ -2,6 +2,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import admin from "firebase-admin";
 
+// Requires: npm install googleapis
+import { google } from "googleapis";
+
 if (!admin.apps.length) {
   // Use application default credentials on Firebase App Hosting (production)
   // Use explicit credentials for local development or emulators
@@ -25,9 +28,54 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
+// Helper to fetch user name from Google People API by email
+async function getNameFromGooglePeopleAPI(email: string): Promise<string> {
+  if (
+    !process.env.GOOGLE_PEOPLE_API_SERVICE_ACCOUNT_EMAIL ||
+    !process.env.GOOGLE_PEOPLE_API_SERVICE_ACCOUNT_PRIVATE_KEY ||
+    !process.env.GOOGLE_PEOPLE_API_IMPERSONATE_USER
+  ) {
+    // Not configured
+    return "";
+  }
+
+  // Set up JWT auth client with domain-wide delegation
+  const jwtClient = new google.auth.JWT({
+    email: process.env.GOOGLE_PEOPLE_API_SERVICE_ACCOUNT_EMAIL,
+    key: process.env.GOOGLE_PEOPLE_API_SERVICE_ACCOUNT_PRIVATE_KEY.replace(
+      /\\n/g,
+      "\n",
+    ),
+    scopes: [
+      "https://www.googleapis.com/auth/admin.directory.user.readonly",
+      "https://www.googleapis.com/auth/userinfo.profile",
+    ],
+    subject: process.env.GOOGLE_PEOPLE_API_IMPERSONATE_USER, // An admin user in the domain
+  });
+
+  const people = google.people({ version: "v1", auth: jwtClient });
+
+  try {
+    // Use people.searchContacts to find the contact by email
+    const resp = await people.people.searchContacts({
+      query: email,
+      readMask: "names,emailAddresses",
+      pageSize: 1,
+    });
+    const person = resp.data.results?.[0]?.person;
+    if (person && person.names && person.names.length > 0) {
+      return person.names[0].displayName || "";
+    }
+  } catch (e) {
+    // Ignore errors, fallback to blank
+  }
+  return "";
+}
+
 // List of columns to include in the CSV
 const CSV_COLUMNS = [
   "userId",
+  "userName",
   "userEmail",
   "sorting_group_0",
   "sorting_group_1",
@@ -58,11 +106,59 @@ export default async function handler(
     // Prepare CSV headers
     let csv = CSV_COLUMNS.join(",") + "\n";
 
-    // Add rows
-    snapshot.forEach((doc) => {
+    // Gather all userIds to fetch displayNames in parallel
+    const userIdToIndex: Record<string, number[]> = {};
+    const docs = snapshot.docs;
+    docs.forEach((doc, idx) => {
       const data = doc.data() as Record<string, unknown>;
+      const userId = typeof data.userId === "string" ? data.userId : "";
+      if (userId) {
+        if (!userIdToIndex[userId]) userIdToIndex[userId] = [];
+        userIdToIndex[userId].push(idx);
+      }
+    });
+
+    // Fetch displayNames for all unique userIds, fallback to Google People API by email if not found
+    const userIdList = Object.keys(userIdToIndex);
+    const userIdToName: Record<string, string> = {};
+    const userIdToEmail: Record<string, string> = {};
+
+    // First, try to get displayName from Firebase Auth and cache email
+    await Promise.all(
+      userIdList.map(async (uid) => {
+        try {
+          const userRecord = await admin.auth().getUser(uid);
+          userIdToName[uid] = userRecord.displayName ?? "";
+          userIdToEmail[uid] = userRecord.email ?? "";
+        } catch (e) {
+          userIdToName[uid] = "";
+          userIdToEmail[uid] = "";
+        }
+      }),
+    );
+
+    // For any userId with blank name, try to fetch from Google People API using email
+    await Promise.all(
+      userIdList.map(async (uid) => {
+        if (!userIdToName[uid] && userIdToEmail[uid]) {
+          const name = await getNameFromGooglePeopleAPI(userIdToEmail[uid]);
+          if (name) userIdToName[uid] = name;
+        }
+      }),
+    );
+
+    // Add rows
+    docs.forEach((doc) => {
+      const data = doc.data() as Record<string, unknown>;
+      const userId = typeof data.userId === "string" ? data.userId : "";
+      const userName = userId ? (userIdToName[userId] ?? "") : "";
       const row = CSV_COLUMNS.map((col) => {
-        let value = data[col];
+        let value;
+        if (col === "userName") {
+          value = userName;
+        } else {
+          value = data[col];
+        }
         // Convert Firestore Timestamp to ISO string
         if (value instanceof admin.firestore.Timestamp) {
           value = value.toDate().toISOString();
