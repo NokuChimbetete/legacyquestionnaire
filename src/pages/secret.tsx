@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 const SecretPage: React.FC = () => {
   useEffect(() => {
-    window.localStorage.setItem("minervaSecretUnlocked", "true");
+    window.localStorage.setItem("minervaSecretUnlocked", "activated");
   }, []);
 
   return (

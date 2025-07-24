@@ -73,11 +73,11 @@ const MainSection: React.FC = () => {
               whileHover={interactions.hover}
               whileTap={interactions.tap}
               onClick={async () => {
-                // Check for secret flag in localStorage
+                // Only activate the flag after visiting the secret page
                 if (
                   typeof window !== "undefined" &&
                   window.localStorage.getItem("minervaSecretUnlocked") ===
-                    "true"
+                    "activated"
                 ) {
                   // Prompt for password
                   const password = window.prompt(
@@ -86,8 +86,15 @@ const MainSection: React.FC = () => {
                   if (password === "tenofheartsintheTL") {
                     // Redirect to another secret page
                     window.location.href = "/super-secret";
-                  } else if (password !== null) {
-                    window.alert("Incorrect password. Try again!");
+                  } else {
+                    // Reset the flag if cancelled or wrong password
+                    window.localStorage.setItem(
+                      "minervaSecretUnlocked",
+                      "false",
+                    );
+                    if (password !== null) {
+                      window.alert("Incorrect password. Try again!");
+                    }
                   }
                 } else {
                   window.location.href = "mailto:legacies@minerva.edu";
