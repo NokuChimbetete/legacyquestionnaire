@@ -1,19 +1,22 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 // Load environment variables
-dotenv.config({ path: '.env.local' });
+dotenv.config({ path: ".env.local" });
 
 // Security configuration
 export const securityConfig = {
   // Allowed origins for CORS
   allowedOrigins: [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'https://legacyquestionnaire-minerva.firebaseapp.com',
-    'https://legacyquestionnaire-minerva.web.app',
-    ...(process.env.NODE_ENV === 'development' ? ['http://localhost:3001', 'http://127.0.0.1:3001'] : [])
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://legacyquestionnaire-minerva.firebaseapp.com",
+    "https://legacyquestionnaire-minerva.web.app",
+    "https://yourminervavibe.com",
+    ...(process.env.NODE_ENV === "development"
+      ? ["http://localhost:3001", "http://127.0.0.1:3001"]
+      : []),
   ],
-  
+
   // Rate limiting configuration
   rateLimits: {
     auth: { maxAttempts: 5, windowMs: 15 * 60 * 1000 }, // 5 attempts per 15 minutes
@@ -21,7 +24,7 @@ export const securityConfig = {
     questions: { maxAttempts: 30, windowMs: 60 * 1000 }, // 30 submissions per minute
     api: { maxAttempts: 100, windowMs: 60 * 1000 }, // 100 API calls per minute
   },
-  
+
   // Content Security Policy
   csp: {
     defaultSrc: ["'self'"],
@@ -37,26 +40,18 @@ export const securityConfig = {
       "'unsafe-inline'", // Required for styled-components and CSS-in-JS
       "https://fonts.googleapis.com",
     ],
-    fontSrc: [
-      "'self'",
-      "https://fonts.gstatic.com",
-    ],
-    imgSrc: [
-      "'self'",
-      "data:",
-      "https:",
-    ],
+    fontSrc: ["'self'", "https://fonts.gstatic.com"],
+    imgSrc: ["'self'", "data:", "https:"],
     connectSrc: [
       "'self'",
       "https://*.googleapis.com",
       "https://*.firebaseio.com",
       "https://*.firebase.com",
+      "https://yourminervavibe.com",
     ],
-    frameSrc: [
-      "https://accounts.google.com",
-    ],
+    frameSrc: ["https://accounts.google.com", "https://yourminervavibe.com"],
   },
-  
+
   // Input validation limits
   validation: {
     email: { maxLength: 254 },
@@ -64,9 +59,7 @@ export const securityConfig = {
     textInput: { maxLength: 5000 },
     questionId: { maxLength: 50 },
   },
-  
 };
-
 
 // Firebase configuration with validation
 export const firebaseConfig = {

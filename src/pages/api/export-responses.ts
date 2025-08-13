@@ -63,9 +63,7 @@ async function getNameFromGooglePeopleAPI(email: string): Promise<string> {
       pageSize: 1,
     });
     const person = resp.data.results?.[0]?.person;
-    if (person && person.names && person.names.length > 0) {
-      return person.names[0].displayName || "";
-    }
+    return person?.names?.[0]?.displayName ?? "";
   } catch (e) {
     // Ignore errors, fallback to blank
   }
