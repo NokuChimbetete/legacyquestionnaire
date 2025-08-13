@@ -11,6 +11,10 @@
         {
           "fieldPath": "startedAt",
           "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
         }
       ]
     }
