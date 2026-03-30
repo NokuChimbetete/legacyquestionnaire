@@ -78,12 +78,14 @@ const DemographicsPopup: React.FC<DemographicsPopupProps> = ({
               required
               disabled={loading}
             >
-              <option value="">Select your class year...</option>
+              <option value="">Select your cohort...</option>
               {cohortYears.map((year) => (
                 <option key={year} value={String(year)}>
                   Class of {year}
                 </option>
               ))}
+              <option value="Staff">Staff</option>
+              <option value="Faculty">Faculty</option>
             </select>
           </div>
           <div>

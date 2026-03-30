@@ -1,7 +1,12 @@
 import admin from "firebase-admin";
 
 if (!admin.apps.length) {
-  if (
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    // Use service account JSON file pointed to by GOOGLE_APPLICATION_CREDENTIALS
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+    });
+  } else if (
     process.env.FUNCTIONS_EMULATOR === "true" ||
     process.env.NODE_ENV === "development"
   ) {
