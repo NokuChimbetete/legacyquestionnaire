@@ -143,6 +143,42 @@ describe("GET /api/cohort-overview", () => {
     expect(overview.runs).toEqual([]);
   });
 
+  // ── Non-numeric cohorts (staff and faculty) ────────────────────────
+
+  it("works for a non-numeric cohort such as Staff", async () => {
+    await seedUser({
+      userId: "staff-1",
+      userName: "Sam Staff",
+      cohort: "Staff",
+      isCompleted: true,
+      affinityVector: { Cable: 6, Ocean: 3 },
+      allocatedLegacy: "Cable",
+    });
+    // A student in a year cohort must not leak into the staff view.
+    await seedUser({
+      userId: "student-1",
+      userName: "Sid Student",
+      cohort: "2029",
+      isCompleted: true,
+      affinityVector: { Cable: 6 },
+      allocatedLegacy: "Cable",
+    });
+
+    const { status, data } = await callApiHandler(handler, {
+      method: "GET",
+      query: { cohort: "Staff" },
+      headers: authHeaders,
+    });
+
+    expect(status).toBe(200);
+    const overview = data as CohortOverview;
+    expect(overview.cohort).toBe("Staff");
+    expect(overview.counts.total).toBe(1);
+    expect(overview.users.map((u) => u.name)).toEqual(["Sam Staff"]);
+    expect(overview.users[0]!.allocatedLegacy).toBe("Cable");
+    expect(overview.users[0]!.assignedRank).toBe(1);
+  });
+
   // ── Audit log round-trip ───────────────────────────────────────────
 
   it("shows an allocation run in history after running allocation", async () => {
