@@ -9,10 +9,24 @@ import { auth, googleProvider } from "../../firebase";
 import type { CohortOverview } from "./api/cohort-overview";
 
 const CURRENT_YEAR = new Date().getFullYear();
-const COHORT_YEARS = Array.from({ length: 6 }, (_, i) => String(CURRENT_YEAR + i));
+
+/**
+ * Must cover every value the demographics popup offers, otherwise those
+ * responses are collected but unreachable from this page: the overview,
+ * the roster export and the allocation are all scoped to one cohort.
+ * Staff and faculty take the same quiz and are sorted the same way.
+ */
+const COHORT_OPTIONS: { value: string; label: string }[] = [
+  ...Array.from({ length: 6 }, (_, i) => {
+    const year = String(CURRENT_YEAR + i);
+    return { value: year, label: `Class of ${year}` };
+  }),
+  { value: "Staff", label: "Staff" },
+  { value: "Faculty", label: "Faculty" },
+];
 
 const SuperSecretPage: React.FC = () => {
-  const [selectedCohort, setSelectedCohort] = useState(COHORT_YEARS[0] ?? "");
+  const [selectedCohort, setSelectedCohort] = useState(COHORT_OPTIONS[0]?.value ?? "");
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [allocating, setAllocating] = useState(false);
@@ -230,9 +244,9 @@ const SuperSecretPage: React.FC = () => {
                   onChange={(e) => setSelectedCohort(e.target.value)}
                   className="w-full rounded border border-gray-300 bg-white p-2 text-sm"
                 >
-                  {COHORT_YEARS.map((year) => (
-                    <option key={year} value={year}>
-                      Class of {year}
+                  {COHORT_OPTIONS.map(({ value, label }) => (
+                    <option key={value} value={value}>
+                      {label}
                     </option>
                   ))}
                 </select>
